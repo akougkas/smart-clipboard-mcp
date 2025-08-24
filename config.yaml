@@ -1,0 +1,22 @@
+# Smart Clipboard Configuration
+server:
+  name: "smart-clipboard"
+  version: "1.0.0"
+
+storage:
+  backend: "lancedb"
+  path: "~/.smart-clipboard/lancedb"
+  
+cache:
+  backend: "redis"  # or "memory"
+  ttl: 3600
+  
+intelligence:
+  embedding_model: "${EMBEDDING_MODEL:-text-embedding-3-small}"
+  tagging_model: "${TAGGING_MODEL:-gpt-3.5-turbo}"
+  cache_embeddings: true
+  
+agent_mode:
+  auto_capture: true
+  min_content_length: 50
+  max_content_length: 10000

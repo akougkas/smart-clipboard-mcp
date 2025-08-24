@@ -1,0 +1,95 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, smart-clipboard-redesign ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install UV
+      uses: astral-sh/setup-uv@v4
+      with:
+        enable-cache: true
+        cache-dependency-glob: "uv.lock"
+    
+    - name: Set up Python
+      run: uv python install ${{ matrix.python-version }}
+    
+    - name: Install dependencies
+      run: uv sync --all-extras --dev
+    
+    - name: Lint with ruff
+      run: uv run ruff check .
+    
+    - name: Format check with black
+      run: uv run black --check .
+    
+    - name: Run tests
+      run: uv run pytest --cov=. --cov-report=xml --cov-report=term-missing
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install UV
+      uses: astral-sh/setup-uv@v4
+      
+    - name: Security audit
+      run: uv run pip-audit
+
+  performance:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install UV
+      uses: astral-sh/setup-uv@v4
+      
+    - name: Install dependencies
+      run: uv sync --dev
+      
+    - name: Performance benchmarks
+      run: |
+        # Basic performance tests
+        uv run python -c "
+        import asyncio
+        import time
+        from mcp_server import SmartClipboardServer
+
+        async def perf_test():
+            server = SmartClipboardServer()
+            
+            # Test response time
+            start = time.time()
+            result = await server._add_clip('test content', 'manual')
+            end = time.time()
+            
+            response_time = end - start
+            print(f'Add clip response time: {response_time:.3f}s')
+            
+            if response_time > 0.01:
+                print('WARNING: Response time exceeded 10ms target')
+                exit(1)
+            else:
+                print('✓ Performance target met')
+
+        asyncio.run(perf_test())
+        "

@@ -1,0 +1,73 @@
+[project]
+name = "smart-clipboard"
+version = "1.0.0"
+description = "AI-powered clipboard management MCP server for Claude Code"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+authors = [
+    { name = "Antonios Kougkas", email = "a.kougkas@gmail.com" }
+]
+keywords = ["mcp", "clipboard", "ai", "claude", "model-context-protocol"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: System Shells",
+]
+
+dependencies = [
+    "mcp>=1.9.4",
+    "lancedb>=0.7.0",
+    "litellm[proxy]>=1.76.0",
+    "redis>=5.0.0",
+    "msgpack>=1.0.0",
+    "pydantic>=2.0.0",
+    "pyyaml>=6.0.0",
+    "pandas>=2.0.0",
+    "httpx>=0.28.0",
+    "python-dotenv>=1.1.0",
+    "rich>=13.0.0",
+]
+
+[project.scripts]
+smart-clipboard = "smart_clipboard.mcp_server:main"
+
+[project.urls]
+Homepage = "https://akougkas.io"
+Repository = "https://github.com/akougkas/smart-clipboard-mcp.git"
+Issues = "https://github.com/akougkas/smart-clipboard-mcp/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["smart_clipboard"]
+
+[tool.uv]
+package = true
+dev-dependencies = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-mock>=3.10.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "pytest-httpx>=0.30.0",
+    "pytest-env>=0.8.0",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py310']
+
+[tool.ruff]
+select = ["E", "F", "I", "N", "W", "UP"]
+ignore = ["E501"]  # Line too long (handled by black)
+target-version = "py310"
